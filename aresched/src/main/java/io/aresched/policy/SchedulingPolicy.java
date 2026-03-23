@@ -5,7 +5,7 @@ import io.aresched.core.TaskRecord;
 public interface SchedulingPolicy {
     void enqueue(TaskRecord<?> task);
 
-    TaskRecord<?> take() throws InterruptedException;
+    TaskRecord<?> take(int workerId) throws InterruptedException;
 
     boolean isEmpty();
 

@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import io.aresched.policy.SchedulingPolicy;
 import io.aresched.policy.fifo.FifoPolicy;
 import io.aresched.policy.priority.PriorityPolicy;
+import io.aresched.policy.steal.WorkStealingPolicy;
 import io.aresched.api.Scheduler;
 import io.aresched.api.SchedulerConfig;
 import io.aresched.api.TaskHandle;
@@ -96,7 +97,7 @@ public class AresScheduler implements Scheduler {
             case PRIORITY:
                 return new PriorityPolicy();
             case WORK_STEALING:
-                throw new UnsupportedOperationException("Work-stealing policy not implemented yet");
+                return new WorkStealingPolicy(config.getWorkerCount());
             default:
                 throw new IllegalStateException("Not a policy type:" + policyType);
 

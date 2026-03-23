@@ -16,12 +16,6 @@ public final class FifoPolicy implements SchedulingPolicy {
     }
 
     @Override
-    public TaskRecord<?> take() throws InterruptedException {
-
-        return queue.take();
-    }
-
-    @Override
     public boolean isEmpty() {
         return queue.isEmpty();
     }
@@ -30,4 +24,11 @@ public final class FifoPolicy implements SchedulingPolicy {
     public void signalAll() {
         // no-op for now in Phase 2
     }
+
+    @Override
+    public TaskRecord<?> take(int workerId) throws InterruptedException {
+        return queue.take();
+    }
+
+
 }

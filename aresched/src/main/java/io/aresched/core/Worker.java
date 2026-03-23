@@ -21,7 +21,7 @@ public final class Worker extends Thread {
     public void run() {
         try{
             while (scheduler.shouldKeepRunning()){
-                TaskRecord<?> task = policy.take();
+                TaskRecord<?> task = policy.take(workerId);
                 boolean running = task.tryMarkRunning(System.nanoTime());
                 if (!running) {
                     continue; // Task was rejected or already completed

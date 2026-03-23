@@ -19,9 +19,10 @@ public class WorkDeque {
     }
 
     public void pushBottom(TaskRecord<?> task){
+        
+        Objects.requireNonNull(task, "Task cannot be null");
+        lock.lock();
         try{
-            Objects.requireNonNull(task, "Task cannot be null");
-            lock.lock();
             deque.addLast(task);
         }
         finally{
@@ -32,33 +33,27 @@ public class WorkDeque {
     }
 
     public TaskRecord<?> popBottom(){
-        try{
-            lock.lock();
-            if(isEmpty()){
+        lock.lock();
+        try {
+            if (deque.isEmpty()) {
                 return null;
             }
-            deque.pollLast();
-
-        }
-        finally{
+            return deque.pollLast();
+        } finally {
             lock.unlock();
         }
-        return null;
     }
 
     public TaskRecord<?> stealTop(){
-        try{
-            lock.lock();
-            if (isEmpty()){
+        lock.lock();
+        try {
+            if (deque.isEmpty()) {
                 return null;
             }
-            deque.pollFirst();
-
-        }
-        finally{
+            return deque.pollFirst();
+        } finally {
             lock.unlock();
         }
-        return null;
     }
 
     public boolean isEmpty(){

@@ -23,7 +23,7 @@ public class PriorityPolicy implements SchedulingPolicy {
         queue.offer(task);
     }
     @Override
-    public TaskRecord<?> take() throws InterruptedException {
+    public TaskRecord<?> take(int workerId) throws InterruptedException {
         return queue.take();
     }
     @Override
