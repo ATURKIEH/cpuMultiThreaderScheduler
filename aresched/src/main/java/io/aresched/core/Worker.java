@@ -46,11 +46,11 @@ public final class Worker extends Thread {
         try{
             V result = task.getPayload().call();
             task.complete(result, System.nanoTime());
-            metricsCollector.onComplete(task);
+            metricsCollector.onComplete(task, workerId);
         }
         catch (Exception e){
             task.fail(e, System.nanoTime());
-            metricsCollector.onFail(task);
+            metricsCollector.onFail(task,workerId);
         }
         finally {
             scheduler.decrementInFlight();

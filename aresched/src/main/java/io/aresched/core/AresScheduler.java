@@ -29,13 +29,16 @@ public class AresScheduler implements Scheduler {
 
     public AresScheduler(SchedulerConfig config, MetricsCollector metricsCollector) {
         this.config = Objects.requireNonNull(config, "config cannot be null");
-        this.policy = createPolicy(config.getInitialPolicy());
         this.metricsCollector = Objects.requireNonNull(metricsCollector, "metricsCollector cannot be null");
+
         this.acceptingTasks = new AtomicBoolean(true);
-        this.workers = new ArrayList<>();
         this.inFlight = new AtomicInteger(0);
-        for (int i = 0; i < config.getWorkerCount(); i++){
-            Worker worker = new Worker(i, this, policy, metricsCollector);
+        this.workers = new ArrayList<>();
+
+        this.policy = createPolicy(config.getInitialPolicy());
+
+        for (int i = 0; i < config.getWorkerCount(); i++) {
+            Worker worker = new Worker(i, this, policy, this.metricsCollector);
             workers.add(worker);
             worker.start();
         }
@@ -97,7 +100,7 @@ public class AresScheduler implements Scheduler {
             case PRIORITY:
                 return new PriorityPolicy();
             case WORK_STEALING:
-                return new WorkStealingPolicy(config.getWorkerCount());
+                return new WorkStealingPolicy(config.getWorkerCount(), metricsCollector);
             default:
                 throw new IllegalStateException("Not a policy type:" + policyType);
 
