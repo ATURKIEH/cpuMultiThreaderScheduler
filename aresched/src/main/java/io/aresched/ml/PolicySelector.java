@@ -1,5 +1,8 @@
 package io.aresched.ml;
 
-public class PolicySelector {
-    
+import io.aresched.core.PolicyType;
+import io.aresched.metrics.MetricsSnapshot;
+
+public interface PolicySelector {
+    PolicyType chooseNext(MetricsSnapshot snapshot, PolicyType currentPolicy);
 }

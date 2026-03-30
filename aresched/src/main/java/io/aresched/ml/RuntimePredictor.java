@@ -1,5 +1,7 @@
 package io.aresched.ml;
 
-public class RuntimePredictor {
-    
+import io.aresched.core.TaskMetadata;
+
+public interface RuntimePredictor {
+    RuntimeBucket predict(TaskMetadata metadata);
 }

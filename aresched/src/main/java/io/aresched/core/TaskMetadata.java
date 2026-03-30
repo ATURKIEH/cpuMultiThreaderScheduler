@@ -24,6 +24,9 @@ public class TaskMetadata {
     public long getInputSize() {
         return inputSize;
     }
+    public TaskHint getHint() {
+        return hint;
+    }
 
     @Override
     public String toString() {

@@ -10,6 +10,11 @@ import io.aresched.api.SchedulerConfig;
 import io.aresched.api.TaskHandle;
 import io.aresched.metrics.MetricsCollector;
 import io.aresched.metrics.MetricsSnapshot;
+import io.aresched.ml.HeuristicPolicySelector;
+import io.aresched.ml.RuntimePredictor;
+import io.aresched.ml.HeuristicRuntimePredictor;
+import io.aresched.ml.PolicySelector;
+import io.aresched.ml.RuntimeBucket;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -26,10 +31,14 @@ public class AresScheduler implements Scheduler {
     private final MetricsCollector metricsCollector;
     private final AtomicInteger inFlight;
     private final List<Worker> workers;
+    private final RuntimePredictor runtimePredictor;
+    private final PolicySelector policySelector;
 
     public AresScheduler(SchedulerConfig config, MetricsCollector metricsCollector) {
         this.config = Objects.requireNonNull(config, "config cannot be null");
         this.metricsCollector = Objects.requireNonNull(metricsCollector, "metricsCollector cannot be null");
+        this.runtimePredictor = createRuntimePredictor();
+        this.policySelector = createPolicySelector();
 
         this.acceptingTasks = new AtomicBoolean(true);
         this.inFlight = new AtomicInteger(0);
@@ -49,6 +58,12 @@ public class AresScheduler implements Scheduler {
         Objects.requireNonNull(task, "task cannot be null");
         TaskRecord<V> record = new TaskRecord<>(task.getCallable(), task.getMetadata());
         TaskHandle<V> handle = new TaskHandle<>(record);
+        RuntimeBucket predictedBucket = null;
+        if(runtimePredictor != null) {
+            predictedBucket = runtimePredictor.predict(task.getMetadata());
+            System.out.println("Predicted bucket for task " + task.getMetadata() + ": " + predictedBucket);
+        }
+
         if (!acceptingTasks.get()) {
             record.tryMarkRejected();
             metricsCollector.onRejected(record);
@@ -92,6 +107,21 @@ public class AresScheduler implements Scheduler {
         return acceptingTasks.get() || !policy.isEmpty() || inFlight.get() > 0;
 
     }
+
+    private RuntimePredictor createRuntimePredictor(){
+        if(!config.isMlEnabled()){
+            return null;
+        }
+        return new HeuristicRuntimePredictor();
+    }
+    private PolicySelector createPolicySelector(){
+        if(!config.isMlEnabled()){
+            return null;
+        }
+        return new HeuristicPolicySelector();
+    }
+
+
 
     private SchedulingPolicy createPolicy(PolicyType policyType){
         switch(policyType){
