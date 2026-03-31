@@ -95,37 +95,11 @@ Work-Stealing Model
 Benchmark Results
 -----------------
 
-Policy
-
-Latency
-
-Queue Wait
-
-Notes
-
-FIFO
-
-High
-
-High
-
-Bottlenecks under heavy load
-
-Priority
-
-Medium
-
-Medium
-
-Improved ordering
-
-Work-Stealing
-
-Lowest
-
-Lowest
-
-Best overall load distribution
+| Policy | Latency | Queue Wait | Notes |
+|--------|---------|------------|-------|
+| FIFO | High | High | Bottlenecks under heavy load |
+| Priority | Medium | Medium | Improved ordering |
+| Work-Stealing | Lowest | Lowest | Best overall load distribution |
 
 * * *
 
