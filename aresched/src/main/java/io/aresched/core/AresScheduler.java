@@ -33,6 +33,7 @@ public class AresScheduler implements Scheduler {
     private final List<Worker> workers;
     private final RuntimePredictor runtimePredictor;
     private final PolicySelector policySelector;
+    private final PolicyType currentPolicyType;
 
     public AresScheduler(SchedulerConfig config, MetricsCollector metricsCollector) {
         this.config = Objects.requireNonNull(config, "config cannot be null");
@@ -43,8 +44,8 @@ public class AresScheduler implements Scheduler {
         this.acceptingTasks = new AtomicBoolean(true);
         this.inFlight = new AtomicInteger(0);
         this.workers = new ArrayList<>();
-
-        this.policy = createPolicy(config.getInitialPolicy());
+        this.currentPolicyType = config.getInitialPolicy();
+        this.policy = createPolicy(currentPolicyType);
 
         for (int i = 0; i < config.getWorkerCount(); i++) {
             Worker worker = new Worker(i, this, policy, this.metricsCollector);
@@ -121,6 +122,16 @@ public class AresScheduler implements Scheduler {
         return new HeuristicPolicySelector();
     }
 
+
+    public PolicyType recommendNextPolicy(){
+        if (!config.isMlEnabled() || policySelector == null) {
+            return currentPolicyType;
+        }
+        else{
+            MetricsSnapshot snapshot = metricsCollector.snapshot();
+            return policySelector.chooseNext(snapshot, currentPolicyType);
+        }
+    }
 
 
     private SchedulingPolicy createPolicy(PolicyType policyType){
